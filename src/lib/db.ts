@@ -2,6 +2,35 @@ import Database from 'better-sqlite3';
 import { User, ApprovalRequest, ApprovalNode } from '@/types/approval';
 import path from 'path';
 
+// Database row interfaces
+interface ApprovalRequestRow {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  request_type: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  created_at: string;
+}
+
+interface ApprovalNodeRow {
+  id: string;
+  request_id: string;
+  level: number;
+  status: 'pending' | 'approved' | 'rejected';
+  approved_by_id?: string;
+  approved_by_name?: string;
+  approved_by_role?: string;
+  approved_at?: string;
+  rejected_by_id?: string;
+  rejected_by_name?: string;
+  rejected_by_role?: string;
+  rejected_at?: string;
+  requires_all: number;
+}
+
 // Initialize database
 const dbPath = process.env.NODE_ENV === 'production' 
   ? '/tmp/approval-demo.db' 
@@ -107,7 +136,7 @@ export class ApprovalDB {
   // Get all approval requests
   getApprovalRequests(): ApprovalRequest[] {
     const requestsStmt = db.prepare('SELECT * FROM approval_requests ORDER BY created_at DESC');
-    const requests = requestsStmt.all() as any[];
+    const requests = requestsStmt.all() as ApprovalRequestRow[];
 
     return requests.map(request => {
       const approvalNodes = this.getApprovalNodesByRequestId(request.id);
@@ -133,7 +162,7 @@ export class ApprovalDB {
       WHERE request_id = ? 
       ORDER BY level
     `);
-    const nodes = nodesStmt.all(requestId) as any[];
+    const nodes = nodesStmt.all(requestId) as ApprovalNodeRow[];
 
     return nodes.map(node => {
       // Get approvers for this node
@@ -155,19 +184,19 @@ export class ApprovalDB {
       if (node.approved_by_id) {
         approvalNode.approvedBy = {
           id: node.approved_by_id,
-          name: node.approved_by_name,
-          role: node.approved_by_role
+          name: node.approved_by_name!,
+          role: node.approved_by_role!
         };
-        approvalNode.approvedAt = node.approved_at;
+        approvalNode.approvedAt = node.approved_at!;
       }
 
       if (node.rejected_by_id) {
         approvalNode.rejectedBy = {
           id: node.rejected_by_id,
-          name: node.rejected_by_name,
-          role: node.rejected_by_role
+          name: node.rejected_by_name!,
+          role: node.rejected_by_role!
         };
-        approvalNode.rejectedAt = node.rejected_at;
+        approvalNode.rejectedAt = node.rejected_at!;
       }
 
       return approvalNode;

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     const updatedRequest = updateApprovalRequest(requestId, req);
     return NextResponse.json(updatedRequest);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to process approval' }, { status: 500 });
   }
 }

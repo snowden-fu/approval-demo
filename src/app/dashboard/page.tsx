@@ -177,7 +177,7 @@ export default function DashboardPage() {
                   <div className="mb-4">
                     <h4 className="font-medium text-gray-700 mb-2">Approval Workflow:</h4>
                     <div className="space-y-2">
-                      {request.approvalNodes.map((node, index) => (
+                      {request.approvalNodes.map((node, _index) => (
                         <div key={node.id} className="flex items-center space-x-2">
                           <span className="text-sm text-gray-500">Level {node.level}:</span>
                           <div className="flex items-center space-x-2">
