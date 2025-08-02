@@ -11,14 +11,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { employeeName, requestType, startDate, endDate, reason } = body;
 
-    const newRequest: Omit<ApprovalRequest, 'id' | 'createdAt' | 'approvalNodes'> = {
+    const newRequest: Omit<ApprovalRequest, 'id' | 'createdAt'> = {
       employeeId: '1',
       employeeName,
       requestType,
       startDate,
       endDate,
       reason,
-      status: 'pending'
+      status: 'pending',
+      approvalNodes: []
     };
 
     const createdRequest = addApprovalRequest(newRequest);
