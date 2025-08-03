@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
     "@types/better-sqlite3": "^7.6.13",
-    "better-sqlite3": "^12.2.0",
     "next": "15.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0"

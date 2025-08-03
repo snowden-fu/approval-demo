@@ -3,7 +3,8 @@ import { getApprovalRequests, addApprovalRequest } from '@/lib/data';
 import { ApprovalRequest } from '@/types/approval';
 
 export async function GET() {
-  return NextResponse.json(getApprovalRequests());
+  const requests = await getApprovalRequests();
+  return NextResponse.json(requests);
 }
 
 export async function POST(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       approvalNodes: []
     };
 
-    const createdRequest = addApprovalRequest(newRequest);
+    const createdRequest = await addApprovalRequest(newRequest);
     return NextResponse.json(createdRequest, { status: 201 });
   } catch (error) {
     console.error('Error creating request:', error);

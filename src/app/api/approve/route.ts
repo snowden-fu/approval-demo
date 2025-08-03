@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { requestId, nodeId, approverId, action } = body;
 
-    const req = getApprovalRequestById(requestId);
+    const req = await getApprovalRequestById(requestId);
     if (!req) {
       return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const updatedRequest = updateApprovalRequest(requestId, req);
+    const updatedRequest = await updateApprovalRequest(requestId, req);
     return NextResponse.json(updatedRequest);
   } catch (_error) {
     return NextResponse.json({ error: 'Failed to process approval' }, { status: 500 });
