@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchData();
@@ -50,6 +51,12 @@ export default function DashboardPage() {
   const handleApproval = async (requestId: string, nodeId: string, action: 'approve' | 'reject') => {
     if (!selectedUser) return;
     
+    const nodeKey = `${requestId}-${nodeId}`;
+    setProcessingIds(prev => new Set(prev).add(nodeKey));
+    
+    // Show immediate feedback
+    alert(`${action === 'approve' ? 'Approving' : 'Rejecting'} request...`);
+    
     try {
       const response = await fetch('/api/approve', {
         method: 'POST',
@@ -65,13 +72,21 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        fetchRequests();
+        // Show success immediately
         alert(`Request ${action}d successfully!`);
+        // Then refresh data
+        fetchRequests();
       } else {
         alert(`Failed to ${action} request`);
       }
     } catch (error) {
       alert(`Error: ${error}`);
+    } finally {
+      setProcessingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(nodeKey);
+        return newSet;
+      });
     }
   };
 
@@ -215,15 +230,17 @@ export default function DashboardPage() {
                     <div className="flex gap-4 pt-4 border-t">
                       <button
                         onClick={() => handleApproval(request.id, currentNode.id, 'approve')}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                        disabled={processingIds.has(`${request.id}-${currentNode.id}`)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Approve
+                        {processingIds.has(`${request.id}-${currentNode.id}`) ? 'Processing...' : 'Approve'}
                       </button>
                       <button
                         onClick={() => handleApproval(request.id, currentNode.id, 'reject')}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        disabled={processingIds.has(`${request.id}-${currentNode.id}`)}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Reject
+                        {processingIds.has(`${request.id}-${currentNode.id}`) ? 'Processing...' : 'Reject'}
                       </button>
                     </div>
                   )}
